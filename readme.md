@@ -8,6 +8,11 @@
 
 ## Table of contents
 
+- [Installation](#installation)
+- [Introduction](#introduction)
+- [Parsing arguments](#parsing-arguments)
+- [Matching arguments](#matching-arguments)
+
 ## Installation
 
 `composer require weew/php-console-arguments`
@@ -18,7 +23,7 @@ This package allows you to easily build commands with certain expectations and t
 
 Note: this package has not been tested on windows.
 
-## ArgumentsParser
+## Parsing arguments
 
 Arguments parser allows you to parse console arguments and takes care of many annoying things like quotes, equitation signs, combined flags etc. The parsing process consists of two steps. The first step is all about normalization and separation of arguments into pieces. The second one is for grouping of flags and options. Lets take a look at this example:
 
@@ -37,7 +42,7 @@ $parser->group($args);
 
 Depending on what kind of arguments you're working with, you might need grouped or ungrouped arguments to extract all the necessary information.
 
-## ArgumentsMatcher
+## Matching arguments
 
 So now you have arguments. But working with plain arrays, ensuring that certain values are set etc. is quite annoying. Lets make it easy.
 
