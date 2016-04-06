@@ -42,6 +42,8 @@ $parser->group($args);
 
 Depending on what kind of arguments you're working with, you might need grouped or ungrouped arguments to extract all the necessary information.
 
+If your arguments are in form of an array instead of a string, simply do `implode(' ', $args)`. Be careful with the `$argv` arguments. First value in there is the path of the script and you need to remove it `array_unshift($args)`.
+
 ## Matching arguments
 
 So now you have arguments. But working with plain arrays, ensuring that certain values are set etc. is quite annoying. Lets make it easy.
@@ -75,8 +77,9 @@ There are several kinds of arguments and options.
 
 ```php
 // a single argument that must be set
-// throws in an error otherwise
+// throws an error otherwise
 ArgumentType::SINGLE;
+
 // an optional argument
 // no error will be thrown if missing
 ArgumentType::SINGLE_OPTIONAL;
@@ -85,60 +88,61 @@ ArgumentType::SINGLE_OPTIONAL;
 // at least one value must be set
 // throws an error otherwise
 ArgumentType::MULTIPLE;
-// takes a flexible amount of value
-// wont throw an error if missing
+
+// takes a flexible amount of values
+// wont throw any errors
 ArgumentType::MULTIPLE_OPTIONAL;
 
 // a single argument is expected
 // throws an error if option or value is missing
-// can be used lilke this:
+// can be used like this:
 // -o arg results in -o=arg
-OptionType:SINGLE;
+OptionType::SINGLE;
 
 // a single argument is expected
 // will not throw any errors if option
 // or value is missing
 // -o results in -o=null
 // -o arg results in -o=arg
-OptionType:SINGLE_OPTIONAL;
+OptionType::SINGLE_OPTIONAL;
 
 // flexible amount of arguments is expected
 // will throw an error if option
 // or at least one value is missing
-// can be used lilke this:
+// can be used like this:
 // -o arg1 arg2 arg3 results in -o=[arg1, arg2, arg3]
-OptionType:MULTIPLE;
+OptionType::MULTIPLE;
 
 // flexible amount of arguments is expected
 // will not throw any errors if option or
 // value is missing
-// can be used lilke this:
+// can be used like this:
 // -o results in -o=[]
 // -o arg1 arg2 arg3 results in -o=[arg1, arg2, arg3]
-OptionType:MULTIPLE_OPTIONAL;
+OptionType::MULTIPLE_OPTIONAL;
 
 // expects no value or one of these values:
 // true, false, 0 or 1
 // defaults to false
 // will not throw any errors if missing
-// can be used lilke this:
+// can be used like this:
 // -o results in -o=true
 // -o=true|false|0|1 results in true or false
-OptionType:BOOLEAN;
+OptionType::BOOLEAN;
 
 // expects a numeric value or no value at all
 // defaults to 0
 // wont throw any errors
-// can be used lilke this:
+// can be used like this:
 // -ooo results in -o=3
 // -o -oo results in -o=3
 // -o=3 results in -o=3
-OptionType:INCREMENTAL;
+OptionType::INCREMENTAL;
 ```
 
 As soon as you have some commands defined, you can match them against the arguments. Matcher will throw exceptions if command expectations were not matched.
 
-```
+```php
 $args = $parser->parse('command arg1 arg2 --option');
 $matcher = new ArgumentsMatcher();
 
@@ -148,10 +152,10 @@ $command->findArgument('arg')->getValue();
 $command->findOption('--option')->getValue();
 ```
 
-If you have multiple commands and don't know which should be used, you can let the matcher find it based on the command name. First value inside the arguments array is assumed to be a command name. Command name are matched intelligently. So a command with name `command` will match `command` as well as `c` and `com`. If multiple commands qualify for the same name, an exceptions will be thrown.
+If you have multiple commands and don't know which should be used, you can let the matcher find it based on the command name. First value inside the arguments array is assumed to be a command name. Command name is matched intelligently. So a command with name `command` will match `command` as well as `c` and `com`. If multiple commands qualify for the same name, an exceptions will be thrown.
 
 ```php
 $matcher->matchCommands($commands, $args);
 ```
 
-You can also match only an option or an arguments the same way, just use `matchArgument` and `matchOption` methods.
+You can also match only an option or an argument the same way, just use `matchArgument` and `matchOption` methods.
