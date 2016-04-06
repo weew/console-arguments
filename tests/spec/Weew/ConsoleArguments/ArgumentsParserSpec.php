@@ -26,6 +26,28 @@ class ArgumentsParserSpec extends ObjectBehavior {
             ]);
     }
 
+    function it_parses_complex_strings() {
+        $this->parse('command:name this too_here "and that" --is="a \" flag" --another=flag -qq "flag \"\' here"')
+            ->shouldBe([
+                'command:name',
+                'this',
+                'too_here',
+                'and that',
+                '--is',
+                'a " flag',
+                '--another',
+                'flag',
+                '-q',
+                '-q',
+                'flag "\' here'
+            ]);
+    }
+
+    function it_parses_arrays() {
+        $this->parse(['arg1', 'arg2'])
+            ->shouldBe(['arg1', 'arg2']);
+    }
+
     function it_parses_arguments() {
         $this->parse('command arg1 arg2')
             ->shouldBe([
@@ -61,7 +83,7 @@ class ArgumentsParserSpec extends ObjectBehavior {
     }
 
     function it_ignores_multiple_equitation_signs() {
-        $this->parse('--left=right=right')
+        $this->parse('--left="right=right"')
             ->shouldBe([
                 '--left', 'right=right'
             ]);

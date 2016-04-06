@@ -9,15 +9,7 @@ class ArgumentsParser implements IArgumentsParser {
      * @var string
      */
     protected $regex = <<<REGEX
-/
-(?:
-  " ((?:(?<=\\\\)"|[^"])*) "
-|
-  ' ((?:(?<=\\\\)'|[^'])*) '
-|
-  (\S+)
-)
-/x
+([a-zA-Z0-9.:_-]+|"([^"\\\\]+(?1)|\\\\.(?1)|)"|'([^'\\\\]+(?2)|\\\\.(?2)|)')s
 REGEX;
 
     /**
@@ -57,9 +49,12 @@ REGEX;
      * @return array
      */
     public function parse($string) {
+        if (is_array($string)) {
+            $string = implode(' ', $string);
+        }
+
         $args = $this->parseString($string);
         $args = $this->unquoteMatches($args);
-        $args = $this->normalizeEquitationSigns($args);
         $args = $this->normalizeShortOptions($args);
 
         return $args;
@@ -136,8 +131,8 @@ REGEX;
     protected function parseString($string) {
         $matches = [];
 
-        if (preg_match_all($this->regex, $string, $result, PREG_SET_ORDER) !== false) {
-            $matches = $result;
+        if (preg_match_all($this->regex, $string, $result) !== false) {
+            $matches = $result[0];
         }
 
         return $matches;
@@ -164,13 +159,15 @@ REGEX;
      * @return string
      */
     protected function unquoteMatch($match) {
-        if (isset($match[3])) {
-            return $match[3];
-        } elseif (isset($match[2])) {
-            return str_replace(['\\\'', '\\\\'], ["'", '\\'], $match[2]);
+        if (str_starts_with($match, ['"', "'"], $match)
+            && str_ends_with($match, ['"', "'"], $match)) {
+            $match = substr($match, 1, -1);
         }
 
-        return str_replace(['\\"', '\\\\'], ['"', '\\'], $match[1]);
+        $match = str_replace(['\\\'', '\\\\'], ["'", '\\'], $match);
+        $match = str_replace(['\\"', '\\\\'], ['"', '\\'], $match);
+
+        return $match;
     }
 
     /**
@@ -189,33 +186,6 @@ REGEX;
                 // convert options like -abc to -a -b -c
                 foreach (str_split(substr($match, 1)) as $match) {
                     $newMatches[] = "-$match";
-                }
-            } else {
-                $newMatches[] = $match;
-            }
-        }
-
-        return $newMatches;
-    }
-
-    /**
-     * @param array $matches
-     *
-     * @return array
-     */
-    protected function normalizeEquitationSigns(array $matches) {
-        $newMatches = [];
-
-        foreach ($matches as $match) {
-            if (strpos($match, '=') !== false) {
-                list($left, $right) = explode('=', $match, 2);
-
-                if ( ! empty($left)) {
-                    $newMatches[] = $left;
-                }
-
-                if ( ! empty($right)) {
-                    $newMatches[] = $right;
                 }
             } else {
                 $newMatches[] = $match;
