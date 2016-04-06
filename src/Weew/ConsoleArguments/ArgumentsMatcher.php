@@ -129,7 +129,7 @@ class ArgumentsMatcher implements IArgumentsMatcher {
         } else {
             $qualifiedCommandNames = [];
 
-            foreach ($commands as $command) {
+            foreach ($matches as $command) {
                 $qualifiedCommandNames[] = $command->getName();
             }
 
