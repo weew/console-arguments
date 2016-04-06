@@ -1,0 +1,18 @@
+formatter.name: pretty
+bootstrap: tests/bootstrap.php
+suites:
+  default:
+    src_path: src
+    spec_path: .
+    spec_prefix: tests\spec
+
+code_coverage:
+  format:
+    - html
+    - clover
+  output:
+    html: build/html
+    clover: build/logs/clover.xml
+
+extensions:
+  - PhpSpec\Extension\CodeCoverageExtension
