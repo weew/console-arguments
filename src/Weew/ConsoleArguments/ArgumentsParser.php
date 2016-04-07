@@ -31,7 +31,7 @@ REGEX;
     public function isOptionName($string) {
         return ! empty($string) &&
             is_string($string) &&
-            preg_match('#^--[a-zA-Z0-9_]{2,}$#', $string) === 1;
+            preg_match('#^--([a-zA-Z0-9_]){2,}([a-zA-Z0-9_-])*$#', $string) === 1;
     }
 
     /**

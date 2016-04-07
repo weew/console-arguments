@@ -45,6 +45,14 @@ class OptionSpec extends ObjectBehavior {
         $this->getName()->shouldBe(null);
     }
 
+    function it_accepts_various_names() {
+        $this->setName('--name');
+        $this->setName('--na');
+        $this->setName('--na_me');
+        $this->setName('--na-me');
+        $this->setName('--na-m-e');
+    }
+
     function it_requires_a_valid_name_format() {
         $this->shouldThrow(InvalidOptionNameException::class)
             ->during('setName', ['name']);
