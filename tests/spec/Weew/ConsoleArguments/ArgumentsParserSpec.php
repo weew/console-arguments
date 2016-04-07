@@ -43,6 +43,16 @@ class ArgumentsParserSpec extends ObjectBehavior {
             ]);
     }
 
+    function it_allows_special_characters() {
+        $this->parse('command:name this *:;%+.too here')
+            ->shouldBe([
+                'command:name',
+                'this',
+                '*:;%+.too',
+                'here',
+            ]);
+    }
+
     function it_parses_arrays() {
         $this->parse(['arg1', 'arg2'])
             ->shouldBe(['arg1', 'arg2']);

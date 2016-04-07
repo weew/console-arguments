@@ -9,7 +9,7 @@ class ArgumentsParser implements IArgumentsParser {
      * @var string
      */
     protected $regex = <<<REGEX
-([a-zA-Z0-9.:_-]+|"([^"\\\\]+(?1)|\\\\.(?1)|)"|'([^'\\\\]+(?2)|\\\\.(?2)|)')s
+([a-zA-Z0-9.:;_*+%/-]+|"([^"\\\\]+(?1)|\\\\.(?1)|)"|'([^'\\\\]+(?2)|\\\\.(?2)|)')s
 REGEX;
 
     /**
