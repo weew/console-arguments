@@ -52,6 +52,18 @@ interface ICommand {
     function setHidden($hidden);
 
     /**
+     * @return bool
+     */
+    function isGlobal();
+
+    /**
+     * @param bool $global
+     *
+     * @return ICommand
+     */
+    function setGlobal($global);
+
+    /**
      * @param int $type
      * @param string $name
      *

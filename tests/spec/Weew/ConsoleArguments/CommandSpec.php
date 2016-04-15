@@ -178,4 +178,14 @@ class CommandSpec extends ObjectBehavior {
     function it_is_chainable_trough_set_hidden() {
         $this->setHidden(true)->shouldBe($this);
     }
+
+    function it_takes_and_returns_global() {
+        $this->isGlobal()->shouldBe(false);
+        $this->setGlobal(true);
+        $this->isGlobal()->shouldBe(true);
+    }
+
+    function it_is_chainable_trough_set_global() {
+        $this->setGlobal(true)->shouldBe($this);
+    }
 }

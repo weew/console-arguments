@@ -27,6 +27,11 @@ class Command implements ICommand {
     protected $hidden = false;
 
     /**
+     * @var bool
+     */
+    protected $global = false;
+
+    /**
      * @var IArgument[]
      */
     protected $arguments = [];
@@ -120,6 +125,24 @@ class Command implements ICommand {
      */
     public function setHidden($hidden) {
         $this->hidden = $hidden;
+
+        return $this;
+    }
+
+    /**
+     * @return bool
+     */
+    public function isGlobal() {
+        return $this->global;
+    }
+
+    /**
+     * @param bool $global
+     *
+     * @return $this
+     */
+    public function setGlobal($global) {
+        $this->global = $global;
 
         return $this;
     }
