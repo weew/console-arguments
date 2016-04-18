@@ -222,4 +222,10 @@ class ArgumentsParserSpec extends ObjectBehavior {
                 '--option' => ['val1', 'val2'],
             ]);
     }
+
+    function it_parses_quoted_string_with_starting_dash() {
+        $args = $this->parse('-v "-1"');
+        $args->shouldBe(['-v', '\-1']);
+        $this->group($args)->shouldBe(['arguments' => [], 'optionsCount' => ['-v' => 1], '-v' => ['-1']]);
+    }
 }
