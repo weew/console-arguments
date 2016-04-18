@@ -84,11 +84,6 @@ REGEX;
                     $groupedArgs['optionsCount'][$option] += 1;
                 }
             } else {
-                // needed for quoted values that start with "-"
-                if (str_starts_with($arg, '\-')) {
-                    $arg = substr($arg, 1);
-                }
-
                 $groupedArgs[$option][] = $arg;
             }
         }
@@ -199,11 +194,6 @@ REGEX;
         if (str_starts_with($match, ['"', "'"], $match)
             && str_ends_with($match, ['"', "'"], $match)) {
             $match = substr($match, 1, -1);
-
-            // needed for quoted values that start with "-"
-            if (str_starts_with($match, '-')) {
-                $match = '\\' . $match;
-            }
         }
 
         $match = str_replace(['\\\'', '\\\\'], ["'", '\\'], $match);
