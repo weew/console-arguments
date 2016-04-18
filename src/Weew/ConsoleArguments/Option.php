@@ -312,6 +312,45 @@ class Option implements IOption {
     }
 
     /**
+     * @param array $args
+     * @param bool $strict
+     *
+     * @return array
+     */
+    public function parseArgs(array $args, $strict = true) {
+        return $this->parseString(implode(' ', $args), $strict);
+    }
+
+    /**
+     * @param array|null $argv
+     * @param bool $strict
+     *
+     * @return array
+     */
+    public function parseArgv(array $argv = null, $strict = true) {
+        if ( ! is_array($argv)) {
+            global $argv;
+        }
+
+        return $this->parseArgs(array_slice($argv, 1), $strict);
+    }
+
+    /**
+     * @param $string
+     * @param bool $strict
+     *
+     * @return array
+     */
+    public function parseString($string, $strict = true) {
+        $parser = new ArgumentsParser();
+        $matcher = new ArgumentsMatcher($parser);
+        $args = $parser->parse($string);
+        $args = $parser->group($args);
+
+        return $matcher->matchOption($this, $args, $strict);
+    }
+
+    /**
      * @param $type
      *
      * @return bool

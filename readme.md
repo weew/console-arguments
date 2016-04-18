@@ -12,6 +12,7 @@
 - [Introduction](#introduction)
 - [Parsing arguments](#parsing-arguments)
 - [Matching arguments](#matching-arguments)
+- [Strict mode](#strict-mode)
 
 ## Installation
 
@@ -36,7 +37,7 @@ $args = $parser->parse('command:name arg1 arg2 --flag="custom \"value" -f="1+1=2
 Now you can groups these arguments.
 
 ```php
-// returns ['command:name', 'arg1', 'arg2', '--flag' => ['custom "value'], '-f' => ['1+1=2'], '-v' => []]
+// returns ['arguments' => ['command:name', 'arg1', 'arg2'], 'optionsCount' => ['--flag' => 1, '-f' => 1, '-v' => 1], '--flag' => ['custom "value'], '-f' => ['1+1=2'], '-v' => []]
 $parser->group($args);
 ```
 
@@ -159,3 +160,11 @@ $matcher->matchCommands($commands, $args);
 ```
 
 You can also match only an option or an argument the same way, just use `matchArgument` and `matchOption` methods.
+
+## Strict mode
+
+By default, arguments matcher runs in strict mode. This means that if a command receives to many arguments or unknown options, an exception will be thrown. This behaviour can be disabled though.
+
+```php
+$matcher->matchCommands($commands, $args, false);
+```

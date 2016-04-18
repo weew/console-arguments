@@ -15,6 +15,7 @@ use Weew\ConsoleArguments\Exceptions\MissingArgumentValueException;
 use Weew\ConsoleArguments\Exceptions\MissingCommandNameException;
 use Weew\ConsoleArguments\Exceptions\MissingOptionValueException;
 use Weew\ConsoleArguments\Exceptions\TooManyArgumentValuesException;
+use Weew\ConsoleArguments\Exceptions\UnknownOptionException;
 use Weew\ConsoleArguments\Option;
 use Weew\ConsoleArguments\OptionType;
 use Weew\ConsoleArguments\ICommand;
@@ -36,10 +37,16 @@ class ArgumentsMatcherSpec extends ObjectBehavior {
         $this->beAnInstanceOf(IArgumentsMatcher::class);
     }
 
+    function it_can_construct_without_parser() {
+        $this->beConstructedWith();
+        $this->matchCommandName(['arguments' => ['command']]);
+    }
+
     function it_matches_command_name() {
-        $args = ['command', '-f', 'arg'];
-        $this->matchCommandName($args)
-            ->shouldBe(['command', ['-f', 'arg']]);
+        $args = ['arguments' => ['command', 'arg'], '-f'];
+        $result = $this->matchCommandName($args);
+        $result[0]->shouldBe('command');
+        $result[1]->shouldBe(['arguments' => ['arg'], '-f']);
     }
 
     function it_throws_an_error_if_command_name_is_not_valid() {
@@ -143,7 +150,7 @@ class ArgumentsMatcherSpec extends ObjectBehavior {
             ->during('matchArgument', [$argument, $args]);
     }
 
-    function it_matches_a_option() {
+    function it_matches_an_option() {
         $option = new Option(OptionType::SINGLE, '--option', null);
         $args = ['arg1', '--option' => ['option1']];
         $this->matchOption($option, $args)
@@ -275,7 +282,7 @@ class ArgumentsMatcherSpec extends ObjectBehavior {
 
     function it_matches_an_incremental_option_by_name() {
         $option = new Option(OptionType::INCREMENTAL, '--option', '-f');
-        $args = ['arg1', 'arg2', '--option', '--option', '--option'];
+        $args = ['arg1', 'arg2', '--option' => [3]];
         $this->matchOption($option, $args)
             ->shouldBe(['arg1', 'arg2']);
         expect($option->getValue())->shouldBe(3);
@@ -283,7 +290,7 @@ class ArgumentsMatcherSpec extends ObjectBehavior {
 
     function it_matches_an_incremental_option_by_alias() {
         $option = new Option(OptionType::INCREMENTAL, '--option', '-f');
-        $args = ['arg1', 'arg2', '-f', '-f', '-f'];
+        $args = ['arg1', 'arg2', '-f' => [3]];
         $this->matchOption($option, $args)
             ->shouldBe(['arg1', 'arg2']);
         expect($option->getValue())->shouldBe(3);
@@ -291,7 +298,7 @@ class ArgumentsMatcherSpec extends ObjectBehavior {
 
     function it_matches_an_incremental_option_by_name_and_alias() {
         $option = new Option(OptionType::INCREMENTAL, '--option', '-f');
-        $args = ['arg1', 'arg2', '--option', '-f', '--option'];
+        $args = ['arg1', 'arg2', '--option' => [3]];
         $this->matchOption($option, $args)
             ->shouldBe(['arg1', 'arg2']);
         expect($option->getValue())->shouldBe(3);
@@ -299,12 +306,12 @@ class ArgumentsMatcherSpec extends ObjectBehavior {
 
     function it_reads_values_of_incremental_options() {
         $option = new Option(OptionType::INCREMENTAL, '--option', '-f');
-        $args = ['arg1', 'arg2', '--option', 'arg', '-f', '-1'];
+        $args = ['arg1', 'arg2', '--option' => ['arg', '-1']];
         $this->matchOption($option, $args)
             ->shouldBe(['arg1', 'arg2']);
         it($option->getValue())->shouldBe(-1);
 
-        $args = ['arg1', 'arg2', '--option', 'arg', '-f', '3'];
+        $args = ['arg1', 'arg2', '-f' => ['3']];
         $this->matchOption($option, $args)
             ->shouldBe(['arg1', 'arg2']);
         it($option->getValue())->shouldBe(3);
@@ -332,12 +339,12 @@ class ArgumentsMatcherSpec extends ObjectBehavior {
         $arg2 = new Argument(ArgumentType::SINGLE, 'arg2');
         $arg3 = new Argument(ArgumentType::SINGLE_OPTIONAL, 'arg3');
 
-        $args = ['arg1', 'arg2'];
+        $args = ['arguments' => ['arg1', 'arg2']];
 
         $command = new Command('name');
         $command->addArguments([$arg1, $arg2, $arg3]);
 
-        $this->matchCommand($command, $args);
+        $this->matchCommand($command, $args)->shouldBe(['arguments' => []]);
         it($arg1->getValue())->shouldBe('arg1');
         it($arg1->hasValue())->shouldBe(true);
         it($arg2->getValue())->shouldBe('arg2');
@@ -348,7 +355,7 @@ class ArgumentsMatcherSpec extends ObjectBehavior {
     function it_throws_an_error_if_command_receives_too_many_arguments() {
         $arg1 = new Argument(ArgumentType::SINGLE, 'arg1');
 
-        $args = ['arg1', 'arg2', 'arg3'];
+        $args = ['arguments' => ['arg1', 'arg2', 'arg3']];
 
         $command = new Command('name');
         $command->addArguments([$arg1]);
@@ -365,7 +372,7 @@ class ArgumentsMatcherSpec extends ObjectBehavior {
         $option5 = new Option(OptionType::MULTIPLE, '--ee', null);
         $option6 = new Option(OptionType::MULTIPLE_OPTIONAL, null, '-f');
 
-        $args = ['-a', 'val1', '--bb', 'val2', '-c', 'val3', '--ee', 'val4', '-f', 'val5', 'val6'];
+        $args = ['-a' => ['val1'], '--bb' => ['val2'], '-c' => ['val3'], '--ee' => ['val4'], '-f' => ['val5', 'val6']];
 
         $command = new Command('name');
         $command->addOptions([$option1, $option2, $option3, $option4, $option5, $option6]);
@@ -391,7 +398,7 @@ class ArgumentsMatcherSpec extends ObjectBehavior {
         $option4 = new Option(OptionType::INCREMENTAL, null, '-d');
         $option5 = new Option(OptionType::INCREMENTAL, '--ee', '-e');
 
-        $args = ['--aa', '-c', '-d', '-d', '-d', '-d', '-e', '-e', '-e', '-e', '-e'];
+        $args = ['--aa' => [], '-c' => [], '-d' => [], '-e' => [], 'optionsCount' => ['-d' => 4, '-e' => 5]];
 
         $command = new Command('name');
         $command->addOptions([$option1, $option2, $option3, $option4, $option5]);
@@ -402,5 +409,16 @@ class ArgumentsMatcherSpec extends ObjectBehavior {
         it($option3->getValue())->shouldBe(true);
         it($option4->getValue())->shouldBe(4);
         it($option5->getValue())->shouldBe(5);
+    }
+
+    function it_throws_an_error_if_command_receives_unknown_options_in_strict_mode() {
+        $command = new Command('name');
+        $this->shouldThrow(UnknownOptionException::class)
+            ->during('matchCommand', [$command, ['--option' => ['value']]]);
+    }
+
+    function it_does_not_throw_an_error_if_command_receives_unknown_options_in_non_strict_mode() {
+        $command = new Command('name');
+        $this->matchCommand($command, ['--option' => ['value']], false);
     }
 }

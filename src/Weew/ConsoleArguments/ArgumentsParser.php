@@ -66,7 +66,11 @@ REGEX;
      * @return array
      */
     public function group(array $args) {
-        $groupedArgs = [];
+        $groupedArgs = [
+            'arguments' => [],
+            'optionsCount' => [],
+        ];
+
         $option = 'arguments';
 
         foreach ($args as $arg) {
@@ -75,9 +79,12 @@ REGEX;
 
                 if ( ! array_has($groupedArgs, $option)) {
                     $groupedArgs[$option] = [];
+                    $groupedArgs['optionsCount'][$option] = 1;
+                } else {
+                    $groupedArgs['optionsCount'][$option] += 1;
                 }
             } else {
-                array_add($groupedArgs, $option, $arg);
+                $groupedArgs[$option][] = $arg;
             }
         }
 
@@ -118,6 +125,31 @@ REGEX;
             array_set($args, $name, $mergedValues);
         } else {
             array_set($args, $alias, $mergedValues);
+        }
+
+        return $this->mergeNameAndAliasCount($args, $name, $alias);
+    }
+
+    /**
+     * @param array $args
+     * @param string $name
+     * @param string $alias
+     *
+     * @return array
+     */
+    protected function mergeNameAndAliasCount(array $args, $name, $alias) {
+        if ( ! array_has($args, 'optionsCount')) {
+            return $args;
+        }
+
+        $namedCount = array_take($args, s('optionsCount.%s', $name), 0);
+        $aliasedCount = array_take($args, s('optionsCount.%s', $alias), 0);
+        $totalCount = $namedCount + $aliasedCount;
+
+        if ($name) {
+            array_set($args, s('optionsCount.%s', $name), $totalCount);
+        } else {
+            array_set($args, s('optionsCount.%s', $alias), $totalCount);
         }
 
         return $args;

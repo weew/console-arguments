@@ -199,4 +199,23 @@ class CommandSpec extends ObjectBehavior {
         $this->getOptions()[0]->shouldBeLike($clone->getOptions()[0]);
         $this->getOptions()[0]->shouldNotBe($clone->getOptions()[0]);
     }
+
+    function it_parses_args() {
+        $arg1 = $this->argument(ArgumentType::SINGLE, 'arg1');
+        $option1 = $this->option(OptionType::SINGLE_OPTIONAL, '--name');
+        $option2 = $this->option(OptionType::INCREMENTAL, '--count', '-c');
+        $this->parseArgs(['arg1', '--name', 'name', '-c', '-c', '-c'], false);
+        
+        $arg1->getValue()->shouldBe('arg1');
+        $option1->getValue()->shouldBe('name');
+        $option2->getValue()->shouldBe(3);
+    }
+
+    function it_parses_argv() {
+        $this->parseArgv(null, false)->shouldBeArray();
+    }
+
+    function it_parses_string() {
+        $this->parseString('', false)->shouldBe(['arguments' => [], 'optionsCount' => []]);
+    }
 }

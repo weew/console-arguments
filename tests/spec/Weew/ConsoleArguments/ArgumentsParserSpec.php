@@ -118,6 +118,12 @@ class ArgumentsParserSpec extends ObjectBehavior {
         $this->group(['arg1', 'arg2', '-x', '-f', 'val1', '--option1', 'val2', 'val3', '--option2', 'val4', '-f', 'val5', '--option1', 'val6'])
             ->shouldBe([
                 'arguments' => ['arg1', 'arg2'],
+                'optionsCount' => [
+                    '-x' => 1,
+                    '-f' => 2,
+                    '--option1' => 2,
+                    '--option2' => 1,
+                ],
                 '-x' => [],
                 '-f' => ['val1', 'val5'],
                 '--option1' => ['val2', 'val3', 'val6'],
@@ -197,5 +203,23 @@ class ArgumentsParserSpec extends ObjectBehavior {
         $args = ['--option' => ['val1'], '-f' => ['val2']];
         $this->mergeNameAndAlias($args, '--option', null)
             ->shouldBe(['-f' => ['val2'], '--option' => ['val1']]);
+    }
+
+    function it_merges_options_count_too() {
+        $args = [
+            '--option' => ['val1'],
+            '-f' => ['val2'],
+            'optionsCount' => [
+                '--option' => 2,
+                '-f' => 3,
+            ],
+        ];
+        $this->mergeNameAndAlias($args, '--option', '-f')
+            ->shouldBe([
+                'optionsCount' => [
+                    '--option' => 5,
+                ],
+                '--option' => ['val1', 'val2'],
+            ]);
     }
 }

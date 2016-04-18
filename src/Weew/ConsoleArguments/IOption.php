@@ -121,4 +121,28 @@ interface IOption {
      * @return bool
      */
     function isIncremental();
+
+    /**
+     * @param array|null $argv
+     * @param bool $strict
+     *
+     * @return array
+     */
+    function parseArgv(array $argv = null, $strict = true);
+
+    /**
+     * @param array $args
+     * @param bool $strict
+     *
+     * @return array
+     */
+    function parseArgs(array $args, $strict = true);
+
+    /**
+     * @param string $string
+     * @param bool $strict
+     *
+     * @return array
+     */
+    function parseString($string, $strict = true);
 }

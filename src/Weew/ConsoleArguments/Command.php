@@ -293,6 +293,46 @@ class Command implements ICommand {
     }
 
     /**
+     * @param array|null $argv
+     * @param bool $strict
+     *
+     * @return array
+     */
+    public function parseArgv(array $argv = null, $strict = true) {
+        if ( ! is_array($argv)) {
+            global $argv;
+        }
+
+        return $this->parseArgs(array_slice($argv, 1), $strict);
+    }
+
+    /**
+     * @param array $args
+     * @param bool $strict
+     *
+     * @return array
+     */
+    public function parseArgs(array $args, $strict = true) {
+        return $this->parseString(implode(' ', $args), $strict);
+    }
+
+    /**
+     * @param $string
+     * @param bool $strict
+     *
+     * @return array
+     * @throws Exceptions\TooManyArgumentValuesException
+     */
+    public function parseString($string, $strict = true) {
+        $parser = new ArgumentsParser();
+        $matcher = new ArgumentsMatcher($parser);
+        $args = $parser->parse($string);
+        $args = $parser->group($args);
+
+        return $matcher->matchCommand($this, $args, $strict);
+    }
+
+    /**
      * Clone command and all of its arguments and options.
      */
     public function __clone() {

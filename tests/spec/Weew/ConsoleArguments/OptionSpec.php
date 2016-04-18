@@ -272,4 +272,37 @@ class OptionSpec extends ObjectBehavior {
     function it_is_chainable_trough_set_type() {
         $this->setType(OptionType::SINGLE)->shouldBe($this);
     }
+
+    function it_parses_args() {
+        $args = ['-o', 'value', '-a'];
+
+        $this->setType(OptionType::SINGLE_OPTIONAL)
+            ->setName('--option')
+            ->setAlias('-o');
+
+        $this->parseArgs($args, false)->shouldBe([
+            'arguments' => [],
+            'optionsCount' => ['-a' => 1, '--option' => 1],
+            '-a' => [],
+        ]);
+        $this->getValue()->shouldBe('value');
+    }
+
+    function it_parses_string() {
+        $this->setType(OptionType::SINGLE_OPTIONAL)
+            ->setName('--option')
+            ->setAlias('-o');
+
+        $this->parseString('-o value', false)->shouldBe(['arguments' => [], 'optionsCount' => ['--option' => 1]]);
+        $this->getValue()->shouldBe('value');
+    }
+
+    function it_parses_argv() {
+        $this->setType(OptionType::SINGLE_OPTIONAL)
+            ->setName('--option')
+            ->setAlias('-o');
+
+        $this->parseArgv(null, false)->shouldBeArray();
+        $this->getValue()->shouldBe(null);
+    }
 }

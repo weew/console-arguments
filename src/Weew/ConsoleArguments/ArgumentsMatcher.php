@@ -9,6 +9,7 @@ use Weew\ConsoleArguments\Exceptions\MissingArgumentValueException;
 use Weew\ConsoleArguments\Exceptions\MissingCommandNameException;
 use Weew\ConsoleArguments\Exceptions\MissingOptionValueException;
 use Weew\ConsoleArguments\Exceptions\TooManyArgumentValuesException;
+use Weew\ConsoleArguments\Exceptions\UnknownOptionException;
 
 class ArgumentsMatcher implements IArgumentsMatcher {
     /**
@@ -21,31 +22,40 @@ class ArgumentsMatcher implements IArgumentsMatcher {
      *
      * @param IArgumentsParser $argumentsParser
      */
-    public function __construct(IArgumentsParser $argumentsParser) {
+    public function __construct(IArgumentsParser $argumentsParser = null) {
+        if ( ! $argumentsParser instanceof IArgumentsParser) {
+            $argumentsParser = $this->createArgumentsParser();
+        }
+
         $this->argumentsParser = $argumentsParser;
     }
 
     /**
-     * @param array $notGroupedArgs
+     * @param array $args
      *
      * @return array
      * @throws MissingCommandNameException
      */
-    public function matchCommandName(array $notGroupedArgs) {
-        $commandName = (string) array_shift($notGroupedArgs);
+    public function matchCommandName(array $args) {
+        $commandName = null;
 
-        if ( ! $commandName || str_starts_with($commandName, '-')) {
-            throw new MissingCommandNameException(s(
-                'You must provide a valid command name.'
-            ));
+        if (array_has($args, 'arguments')) {
+            $commandName = (string) array_shift($args['arguments']);
         }
 
-        return [$commandName, $notGroupedArgs];
+        if ( ! $commandName || str_starts_with($commandName, '-')) {
+            throw new MissingCommandNameException(
+                'You must provide a valid command name.'
+            );
+        }
+
+        return [$commandName, $args];
     }
 
     /**
      * @param ICommand[] $commands
-     * @param array $notGroupedArgs
+     * @param array $args
+     * @param bool $strict
      *
      * @return ICommand
      * @throws AmbiguousCommandException
@@ -53,52 +63,60 @@ class ArgumentsMatcher implements IArgumentsMatcher {
      * @throws MissingCommandNameException
      * @throws TooManyArgumentValuesException
      */
-    public function matchCommands(array $commands, array $notGroupedArgs) {
-        list($commandName, $notGroupedArgs) = $this->matchCommandName($notGroupedArgs);
+    public function matchCommands(array $commands, array $args, $strict = true) {
+        $groupedArgs = $this->argumentsParser->group($args);
+
+        list($commandName, $groupedArgs) = $this->matchCommandName($groupedArgs);
         $command = $this->findCommand($commands, $commandName);
 
-        $this->matchCommand($command, $notGroupedArgs);
+        $this->matchCommand($command, $groupedArgs, $strict);
 
         return $command;
     }
 
     /**
      * @param ICommand $command
-     * @param array $notGroupedArgs
+     * @param array $groupedArgs
+     * @param bool $strict
      *
-     * @return ICommand
+     * @return array
      * @throws MissingArgumentValueException
      * @throws TooManyArgumentValuesException
+     * @throws UnknownOptionException
      */
-    public function matchCommand(ICommand $command, array $notGroupedArgs) {
-        foreach ($command->getOptions() as $option) {
-            if ($option->isIncremental()) {
-                $notGroupedArgs = $this->matchOption($option, $notGroupedArgs);
-            }
-        }
-
-        $groupedArgs = $this->argumentsParser->group($notGroupedArgs);
-
+    public function matchCommand(ICommand $command, array $groupedArgs, $strict = true) {
         foreach ($command->getArguments() as $argument) {
-            $groupedArgs = $this->matchArgument($argument, $groupedArgs);
+            $groupedArgs = $this->matchArgument($argument, $groupedArgs, $strict);
         }
 
         $leftoverArgs = array_get($groupedArgs, 'arguments', []);
 
-        if (is_array($leftoverArgs) && count($leftoverArgs) > 0) {
+        if (is_array($leftoverArgs) && count($leftoverArgs) > 0 && $strict) {
             throw new TooManyArgumentValuesException(s(
                 'Too many arguments, remove: %s.',
                 implode(', ', $leftoverArgs)
             ));
         }
 
+        $foundOptions = ['arguments', 'optionsCount'];
+
         foreach ($command->getOptions() as $option) {
-            if ( ! $option->isIncremental()) {
-                $groupedArgs = $this->matchOption($option, $groupedArgs);
+            $groupedArgs = $this->matchOption($option, $groupedArgs, $strict);
+            $foundOptions[] = $option->getNameOrAlias();
+        }
+
+        if ($strict) {
+            foreach ($groupedArgs as $key => $arg) {
+                if ( ! in_array($key, $foundOptions)) {
+                    throw new UnknownOptionException(s(
+                        'Invalid option "%s".',
+                        $key
+                    ));
+                }
             }
         }
 
-        return $command;
+        return $groupedArgs;
     }
 
     /**
@@ -172,11 +190,12 @@ class ArgumentsMatcher implements IArgumentsMatcher {
     /**
      * @param IArgument $argument
      * @param array $groupedArgs
+     * @param bool $strict
      *
      * @return array
      * @throws MissingArgumentValueException
      */
-    public function matchArgument(IArgument $argument, array $groupedArgs) {
+    public function matchArgument(IArgument $argument, array $groupedArgs, $strict = true) {
         $arg = null;
 
         if (array_has($groupedArgs, 'arguments')) {
@@ -188,7 +207,7 @@ class ArgumentsMatcher implements IArgumentsMatcher {
             }
         }
 
-        if ($argument->isRequired() && $arg === null) {
+        if ($argument->isRequired() && $arg === null && $strict) {
             throw new MissingArgumentValueException(s(
                 'Missing argument value "%s".', $argument->getName()
             ));
@@ -202,61 +221,64 @@ class ArgumentsMatcher implements IArgumentsMatcher {
     /**
      * @param IOption $option
      * @param array $groupedArgs
+     * @param bool $strict
      *
      * @return array
      * @throws InvalidOptionValueException
      * @throws MissingOptionValueException
      */
-    public function matchOption(IOption $option, array $groupedArgs) {
+    public function matchOption(IOption $option, array $groupedArgs, $strict = true) {
+        $groupedArgs = $this->argumentsParser
+            ->mergeNameAndAlias($groupedArgs, $option->getName(), $option->getAlias());
+
         if ($option->isIncremental()) {
-            return $this->matchIncrementalOption($option, $groupedArgs);
+            $groupedArgs = $this->matchIncrementalOption($option, $groupedArgs, $strict);
         } else if ($option->isBoolean()) {
-            return $this->matchBooleanOption($option, $groupedArgs);
+            $groupedArgs = $this->matchBooleanOption($option, $groupedArgs, $strict);
         } else {
-            return $this->matchRegularOption($option, $groupedArgs);
-        }
-    }
-
-    /**
-     * @param IOption $option
-     * @param array $notGroupedArgs
-     *
-     * @return array
-     */
-    protected function matchIncrementalOption(IOption $option, array $notGroupedArgs) {
-        $matched = false;
-
-        foreach ($notGroupedArgs as $index => $arg) {
-            if ($option->getNameOrAlias() === $arg || $option->getAlias() === $arg) {
-                array_remove($notGroupedArgs, $index);
-                $option->setValue($option->getValue() + 1);
-                $matched = true;
-            } else {
-                if ($matched && (is_numeric($arg) || ! $this->argumentsParser->isOptionNameOrAlias($arg))) {
-                    $option->setValue(intval($arg));
-                    array_remove($notGroupedArgs, $index);
-                }
-
-                $matched = false;
-            }
+            $groupedArgs = $this->matchRegularOption($option, $groupedArgs, $strict);
         }
 
-        $notGroupedArgs = array_reset($notGroupedArgs);
-
-        return $notGroupedArgs;
+        return $groupedArgs;
     }
 
     /**
      * @param IOption $option
      * @param array $groupedArgs
+     * @param bool $strict
+     *
+     * @return array
+     */
+    protected function matchIncrementalOption(IOption $option, array $groupedArgs, $strict) {
+        if (array_has($groupedArgs, $option->getNameOrAlias())) {
+            $values = array_take($groupedArgs, $option->getNameOrAlias());
+            $optionCount = array_get($groupedArgs, s('optionsCount.%s', $option->getNameOrAlias()), 0);
+            $valueProvided = false;
+
+            foreach ($values as $value) {
+                if (is_numeric($value)) {
+                    $option->setValue(intval($value));
+                    $valueProvided = true;
+                }
+            }
+
+            if ( ! $valueProvided) {
+                $option->setValue($optionCount);
+            }
+        }
+
+        return $groupedArgs;
+    }
+
+    /**
+     * @param IOption $option
+     * @param array $groupedArgs
+     * @param bool $strict
      *
      * @return array
      * @throws InvalidOptionValueException
      */
-    protected function matchBooleanOption(IOption $option, array $groupedArgs) {
-        $groupedArgs = $this->argumentsParser
-            ->mergeNameAndAlias($groupedArgs, $option->getNameOrAlias(), $option->getAlias());
-
+    protected function matchBooleanOption(IOption $option, array $groupedArgs, $strict) {
         if (array_has($groupedArgs, $option->getNameOrAlias())) {
             $values = array_take($groupedArgs, $option->getNameOrAlias());
 
@@ -269,7 +291,7 @@ class ArgumentsMatcher implements IArgumentsMatcher {
                     $option->setValue(true);
                 } else if (in_array($value, [0, '0', false, 'false'], true)) {
                     $option->setValue(false);
-                } else {
+                } else if ($strict) {
                     throw new InvalidOptionValueException(s(
                         'Boolean option "%s" expects one of these values: 0, 1, true, false.',
                         $option->getNameOrAlias()
@@ -284,19 +306,17 @@ class ArgumentsMatcher implements IArgumentsMatcher {
     /**
      * @param IOption $option
      * @param array $groupedArgs
+     * @param bool $strict
      *
      * @return array
      * @throws MissingOptionValueException
      */
-    protected function matchRegularOption(IOption $option, array $groupedArgs) {
-        $groupedArgs = $this->argumentsParser
-            ->mergeNameAndAlias($groupedArgs, $option->getName(), $option->getAlias());
-
+    protected function matchRegularOption(IOption $option, array $groupedArgs, $strict) {
         $isRequired = $option->isRequired();
         $hasValue = array_has($groupedArgs, $option->getNameOrAlias()) &&
             count(array_get($groupedArgs, $option->getNameOrAlias())) > 0;
 
-        if ($isRequired && ! $hasValue) {
+        if ($isRequired && ! $hasValue && $strict) {
             throw new MissingOptionValueException(s(
                 'Missing option value "%s".', $option->getNameOrAlias()
             ));
@@ -313,5 +333,12 @@ class ArgumentsMatcher implements IArgumentsMatcher {
         }
 
         return $groupedArgs;
+    }
+
+    /**
+     * @return IArgumentsParser
+     */
+    protected function createArgumentsParser() {
+        return new ArgumentsParser();
     }
 }
