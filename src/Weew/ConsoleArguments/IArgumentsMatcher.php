@@ -5,37 +5,37 @@ namespace Weew\ConsoleArguments;
 interface IArgumentsMatcher {
     /**
      * @param ICommand[] $commands
-     * @param array $args
+     * @param array $groupedArgs
      * @param bool $strict
      *
      * @return ICommand
      */
-    function matchCommands(array $commands, array $args, $strict = true);
+    function matchCommands(array $commands, array $groupedArgs, $strict = true);
 
     /**
      * @param ICommand $commands
-     * @param array $args
+     * @param array $groupedArgs
      * @param bool $strict
      *
      * @return array
      */
-    function matchCommand(ICommand $commands, array $args, $strict = true);
+    function matchCommand(ICommand $commands, array $groupedArgs, $strict = true);
 
     /**
      * @param IArgument $argument
-     * @param array $args
+     * @param array $groupedArgs
      * @param bool $strict
      *
      * @return array
      */
-    function matchArgument(IArgument $argument, array $args, $strict = true);
+    function matchArgument(IArgument $argument, array $groupedArgs, $strict = true);
 
     /**
      * @param IOption $option
-     * @param array $args
+     * @param array $groupedArgs
      * @param bool $strict
      *
      * @return array
      */
-    function matchOption(IOption $option, array $args, $strict = true);
+    function matchOption(IOption $option, array $groupedArgs, $strict = true);
 }

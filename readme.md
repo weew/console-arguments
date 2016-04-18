@@ -145,9 +145,10 @@ As soon as you have some commands defined, you can match them against the argume
 
 ```php
 $args = $parser->parse('command arg1 arg2 --option');
+$groupedArgs = $parser->group($args);
 $matcher = new ArgumentsMatcher();
 
-$command = $matcher->matchCommand($command, $args);
+$command = $matcher->matchCommand($command, $groupedArgs);
 
 $command->findArgument('arg')->getValue();
 $command->findOption('--option')->getValue();
@@ -156,7 +157,7 @@ $command->findOption('--option')->getValue();
 If you have multiple commands and don't know which should be used, you can let the matcher find it based on the command name. First value inside the arguments array is assumed to be a command name. Command name is matched intelligently. So a command with name `command` will match `command` as well as `c` and `com`. If multiple commands qualify for the same name, an exceptions will be thrown.
 
 ```php
-$matcher->matchCommands($commands, $args);
+$matcher->matchCommands($commands, $groupedArgs);
 ```
 
 You can also match only an option or an argument the same way, just use `matchArgument` and `matchOption` methods.
@@ -166,5 +167,5 @@ You can also match only an option or an argument the same way, just use `matchAr
 By default, arguments matcher runs in strict mode. This means that if a command receives to many arguments or unknown options, an exception will be thrown. This behaviour can be disabled though.
 
 ```php
-$matcher->matchCommands($commands, $args, false);
+$matcher->matchCommands($commands, $groupedArgs, false);
 ```

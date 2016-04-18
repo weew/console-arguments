@@ -329,7 +329,7 @@ class ArgumentsMatcherSpec extends ObjectBehavior {
         $command1 = new Command('name1');
         $command2 = new Command('name2');
         $commands = [$command1, $command2];
-        $args = ['name2'];
+        $args = ['arguments' => ['name2']];
         $command = $this->matchCommands($commands, $args);
         $command->shouldBe($command2);
     }

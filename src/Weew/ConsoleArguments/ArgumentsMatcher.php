@@ -54,7 +54,7 @@ class ArgumentsMatcher implements IArgumentsMatcher {
 
     /**
      * @param ICommand[] $commands
-     * @param array $args
+     * @param array $groupedArgs
      * @param bool $strict
      *
      * @return ICommand
@@ -63,9 +63,7 @@ class ArgumentsMatcher implements IArgumentsMatcher {
      * @throws MissingCommandNameException
      * @throws TooManyArgumentValuesException
      */
-    public function matchCommands(array $commands, array $args, $strict = true) {
-        $groupedArgs = $this->argumentsParser->group($args);
-
+    public function matchCommands(array $commands, array $groupedArgs, $strict = true) {
         list($commandName, $groupedArgs) = $this->matchCommandName($groupedArgs);
         $command = $this->findCommand($commands, $commandName);
 
