@@ -421,4 +421,10 @@ class ArgumentsMatcherSpec extends ObjectBehavior {
         $command = new Command('name');
         $this->matchCommand($command, ['--option' => ['value']], false);
     }
+
+    function it_throws_an_if_at_least_one_value_is_missing_for_option_of_type_multiple() {
+        $option = new Argument(ArgumentType::MULTIPLE, 'arg');
+        $this->shouldThrow(MissingArgumentValueException::class)
+            ->during('matchArgument', [$option, ['arguments' => []]]);
+    }
 }

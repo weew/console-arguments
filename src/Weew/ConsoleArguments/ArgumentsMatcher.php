@@ -206,7 +206,7 @@ class ArgumentsMatcher implements IArgumentsMatcher {
             }
         }
 
-        if ($argument->isRequired() && $arg === null && $strict) {
+        if ($argument->isRequired() && $strict && ($arg === null || $arg === [])) {
             throw new MissingArgumentValueException(s(
                 'Missing argument value "%s".', $argument->getName()
             ));
