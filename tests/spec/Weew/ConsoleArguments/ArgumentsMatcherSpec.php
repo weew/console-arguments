@@ -331,7 +331,7 @@ class ArgumentsMatcherSpec extends ObjectBehavior {
         $commands = [$command1, $command2];
         $args = ['arguments' => ['name2']];
         $command = $this->matchCommands($commands, $args);
-        $command->shouldBe($command2);
+        $command->shouldBe([$command2, ['arguments' => []]]);
     }
 
     function it_matches_a_command_with_arguments() {

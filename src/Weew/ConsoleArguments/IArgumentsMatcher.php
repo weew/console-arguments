@@ -8,7 +8,7 @@ interface IArgumentsMatcher {
      * @param array $groupedArgs
      * @param bool $strict
      *
-     * @return ICommand
+     * @return array[ICommand, array]
      */
     function matchCommands(array $commands, array $groupedArgs, $strict = true);
 

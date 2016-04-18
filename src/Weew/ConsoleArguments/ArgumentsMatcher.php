@@ -53,23 +53,24 @@ class ArgumentsMatcher implements IArgumentsMatcher {
     }
 
     /**
-     * @param ICommand[] $commands
+     * @param array $commands
      * @param array $groupedArgs
      * @param bool $strict
      *
-     * @return ICommand
+     * @return array[ICommand, array]
      * @throws AmbiguousCommandException
      * @throws CommandNotFoundException
      * @throws MissingCommandNameException
      * @throws TooManyArgumentValuesException
+     * @throws UnknownOptionException
      */
     public function matchCommands(array $commands, array $groupedArgs, $strict = true) {
         list($commandName, $groupedArgs) = $this->matchCommandName($groupedArgs);
         $command = $this->findCommand($commands, $commandName);
 
-        $this->matchCommand($command, $groupedArgs, $strict);
+        $groupedArgs = $this->matchCommand($command, $groupedArgs, $strict);
 
-        return $command;
+        return [$command, $groupedArgs];
     }
 
     /**
