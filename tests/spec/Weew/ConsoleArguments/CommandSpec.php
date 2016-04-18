@@ -188,4 +188,15 @@ class CommandSpec extends ObjectBehavior {
     function it_is_chainable_trough_set_global() {
         $this->setGlobal(true)->shouldBe($this);
     }
+
+    function it_deep_clones_itself() {
+        $this->argument(ArgumentType::SINGLE, 'arg');
+        $this->option(OptionType::SINGLE, '--opt');
+        $clone = clone $this->getWrappedObject();
+
+        $this->getArguments()[0]->shouldBeLike($clone->getArguments()[0]);
+        $this->getArguments()[0]->shouldNotBe($clone->getArguments()[0]);
+        $this->getOptions()[0]->shouldBeLike($clone->getOptions()[0]);
+        $this->getOptions()[0]->shouldNotBe($clone->getOptions()[0]);
+    }
 }

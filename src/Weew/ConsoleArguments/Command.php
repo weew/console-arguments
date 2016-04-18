@@ -291,4 +291,23 @@ class Command implements ICommand {
 
         return $this;
     }
+
+    /**
+     * Clone command and all of its arguments and options.
+     */
+    public function __clone() {
+        $arguments = [];
+        $options = [];
+
+        foreach ($this->arguments as $key => $argument) {
+            $arguments[$key] = clone $argument;
+        }
+
+        foreach ($this->options as $key => $option) {
+            $options[$key] = clone $option;
+        }
+
+        $this->arguments = $arguments;
+        $this->options = $options;
+    }
 }
