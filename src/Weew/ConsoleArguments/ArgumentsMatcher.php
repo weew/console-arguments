@@ -106,7 +106,7 @@ class ArgumentsMatcher implements IArgumentsMatcher {
 
         if ($strict) {
             foreach ($groupedArgs as $key => $arg) {
-                if ( ! in_array($key, $foundOptions)) {
+                if ( ! array_contains($foundOptions, $key)) {
                     throw new UnknownOptionException(s(
                         'Invalid option "%s".',
                         $key
@@ -286,9 +286,9 @@ class ArgumentsMatcher implements IArgumentsMatcher {
             } else {
                 $value = array_pop($values);
 
-                if (in_array($value, [1, '1', true, 'true'], true)) {
+                if (array_contains([1, '1', true, 'true'], $value)) {
                     $option->setValue(true);
-                } else if (in_array($value, [0, '0', false, 'false'], true)) {
+                } else if (array_contains([0, '0', false, 'false'], $value)) {
                     $option->setValue(false);
                 } else if ($strict) {
                     throw new InvalidOptionValueException(s(
