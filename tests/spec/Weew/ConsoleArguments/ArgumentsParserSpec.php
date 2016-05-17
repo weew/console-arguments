@@ -118,7 +118,7 @@ class ArgumentsParserSpec extends ObjectBehavior {
         $this->group(['arg1', 'arg2', '-x', '-f', 'val1', '--option1', 'val2', 'val3', '--option2', 'val4', '-f', 'val5', '--option1', 'val6'])
             ->shouldBe([
                 'arguments' => ['arg1', 'arg2'],
-                'optionsCount' => [
+                'options' => [
                     '-x' => 1,
                     '-f' => 2,
                     '--option1' => 2,
@@ -209,14 +209,14 @@ class ArgumentsParserSpec extends ObjectBehavior {
         $args = [
             '--option' => ['val1'],
             '-f' => ['val2'],
-            'optionsCount' => [
+            'options' => [
                 '--option' => 2,
                 '-f' => 3,
             ],
         ];
         $this->mergeNameAndAlias($args, '--option', '-f')
             ->shouldBe([
-                'optionsCount' => [
+                'options' => [
                     '--option' => 5,
                 ],
                 '--option' => ['val1', 'val2'],

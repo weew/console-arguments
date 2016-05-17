@@ -216,6 +216,6 @@ class CommandSpec extends ObjectBehavior {
     }
 
     function it_parses_string() {
-        $this->parseString('', false)->shouldBe(['arguments' => [], 'optionsCount' => []]);
+        $this->parseString('', false)->shouldBe(['arguments' => [], 'options' => []]);
     }
 }

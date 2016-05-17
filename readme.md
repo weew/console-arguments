@@ -37,7 +37,7 @@ $args = $parser->parse('command:name arg1 arg2 --flag="custom \"value" -f="1+1=2
 Now you can groups these arguments.
 
 ```php
-// returns ['arguments' => ['command:name', 'arg1', 'arg2'], 'optionsCount' => ['--flag' => 1, '-f' => 1, '-v' => 1], '--flag' => ['custom "value'], '-f' => ['1+1=2'], '-v' => []]
+// returns ['arguments' => ['command:name', 'arg1', 'arg2'], 'options' => ['--flag' => 1, '-f' => 1, '-v' => 1], '--flag' => ['custom "value'], '-f' => ['1+1=2'], '-v' => []]
 $parser->group($args);
 ```
 

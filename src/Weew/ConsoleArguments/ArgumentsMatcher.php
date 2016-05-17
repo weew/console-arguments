@@ -97,7 +97,7 @@ class ArgumentsMatcher implements IArgumentsMatcher {
             ));
         }
 
-        $foundOptions = ['arguments', 'optionsCount'];
+        $foundOptions = ['arguments', 'options'];
 
         foreach ($command->getOptions() as $option) {
             $groupedArgs = $this->matchOption($option, $groupedArgs, $strict);
@@ -251,7 +251,7 @@ class ArgumentsMatcher implements IArgumentsMatcher {
     protected function matchIncrementalOption(IOption $option, array $groupedArgs, $strict) {
         if (array_has($groupedArgs, $option->getNameOrAlias())) {
             $values = array_take($groupedArgs, $option->getNameOrAlias());
-            $optionCount = array_get($groupedArgs, s('optionsCount.%s', $option->getNameOrAlias()), 0);
+            $optionCount = array_get($groupedArgs, s('options.%s', $option->getNameOrAlias()), 0);
             $valueProvided = false;
 
             foreach ($values as $value) {

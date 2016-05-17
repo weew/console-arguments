@@ -398,7 +398,7 @@ class ArgumentsMatcherSpec extends ObjectBehavior {
         $option4 = new Option(OptionType::INCREMENTAL, null, '-d');
         $option5 = new Option(OptionType::INCREMENTAL, '--ee', '-e');
 
-        $args = ['--aa' => [], '-c' => [], '-d' => [], '-e' => [], 'optionsCount' => ['-d' => 4, '-e' => 5]];
+        $args = ['--aa' => [], '-c' => [], '-d' => [], '-e' => [], 'options' => ['-d' => 4, '-e' => 5]];
 
         $command = new Command('name');
         $command->addOptions([$option1, $option2, $option3, $option4, $option5]);

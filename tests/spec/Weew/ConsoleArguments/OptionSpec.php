@@ -282,7 +282,7 @@ class OptionSpec extends ObjectBehavior {
 
         $this->parseArgs($args, false)->shouldBe([
             'arguments' => [],
-            'optionsCount' => ['-a' => 1, '--option' => 1],
+            'options' => ['-a' => 1, '--option' => 1],
             '-a' => [],
         ]);
         $this->getValue()->shouldBe('value');
@@ -293,7 +293,7 @@ class OptionSpec extends ObjectBehavior {
             ->setName('--option')
             ->setAlias('-o');
 
-        $this->parseString('-o value', false)->shouldBe(['arguments' => [], 'optionsCount' => ['--option' => 1]]);
+        $this->parseString('-o value', false)->shouldBe(['arguments' => [], 'options' => ['--option' => 1]]);
         $this->getValue()->shouldBe('value');
     }
 
