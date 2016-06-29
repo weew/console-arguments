@@ -27,10 +27,10 @@ class ArgumentsParserSpec extends ObjectBehavior {
     }
 
     function it_parses_complex_strings() {
-        $this->parse('command:name this too_here "and that" --is="a \" flag" --another=flag -qq "flag \"\' here"')
+        $this->parse('command:name this@email.com too_here "and that" --is="a \" flag" --another=flag -qq "flag \"\' here"')
             ->shouldBe([
                 'command:name',
-                'this',
+                'this@email.com',
                 'too_here',
                 'and that',
                 '--is',
