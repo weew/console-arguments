@@ -1,10 +1,10 @@
 # Console arguments parser
 
-[![Build Status](https://img.shields.io/travis/weew/php-console-arguments.svg)](https://travis-ci.org/weew/php-console-arguments)
-[![Code Quality](https://img.shields.io/scrutinizer/g/weew/php-console-arguments.svg)](https://scrutinizer-ci.com/g/weew/php-console-arguments)
-[![Test Coverage](https://img.shields.io/coveralls/weew/php-console-arguments.svg)](https://coveralls.io/github/weew/php-console-arguments)
-[![Version](https://img.shields.io/packagist/v/weew/php-console-arguments.svg)](https://packagist.org/packages/weew/php-console-arguments)
-[![Licence](https://img.shields.io/packagist/l/weew/php-console-arguments.svg)](https://packagist.org/packages/weew/php-console-arguments)
+[![Build Status](https://img.shields.io/travis/weew/console-arguments.svg)](https://travis-ci.org/weew/console-arguments)
+[![Code Quality](https://img.shields.io/scrutinizer/g/weew/console-arguments.svg)](https://scrutinizer-ci.com/g/weew/console-arguments)
+[![Test Coverage](https://img.shields.io/coveralls/weew/console-arguments.svg)](https://coveralls.io/github/weew/console-arguments)
+[![Version](https://img.shields.io/packagist/v/weew/console-arguments.svg)](https://packagist.org/packages/weew/console-arguments)
+[![Licence](https://img.shields.io/packagist/l/weew/console-arguments.svg)](https://packagist.org/packages/weew/console-arguments)
 
 ## Table of contents
 
@@ -16,7 +16,7 @@
 
 ## Installation
 
-`composer require weew/php-console-arguments`
+`composer require weew/console-arguments`
 
 ## Introduction
 

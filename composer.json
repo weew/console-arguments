@@ -1,6 +1,6 @@
 {
-    "name": "weew/php-console-arguments",
-    "description": "Flexible console arguments parser",
+    "name": "weew/console-arguments",
+    "description": "Flexible console arguments parser.",
     "license": "MIT",
     "authors": [
         {
@@ -19,13 +19,13 @@
         }
     },
     "require": {
-        "weew/php-helpers-string": "^1.7",
-        "weew/php-helpers-array": "^1.2"
+        "weew/helpers-string": "^1.7",
+        "weew/helpers-array": "^1.2"
     },
     "require-dev": {
         "satooshi/php-coveralls": "^0.6.1",
         "phpspec/phpspec": "^2.4",
-        "weew/php-helpers-phpspec": "^1.0",
+        "weew/helpers-phpspec": "^1.0",
         "henrikbjorn/phpspec-code-coverage": "^2.0"
     }
 }
