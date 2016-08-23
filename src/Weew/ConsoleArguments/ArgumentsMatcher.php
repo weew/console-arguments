@@ -144,13 +144,11 @@ class ArgumentsMatcher implements IArgumentsMatcher {
                 $commandName
             ));
         } else {
-            $qualifiedCommandNames = [];
+            $qualifiedCommandNames = '';
 
             foreach ($matches as $command) {
-                $qualifiedCommandNames[] = $command->getName();
+                $qualifiedCommandNames .= "\n" . $command->getName();
             }
-
-            $qualifiedCommandNames = implode(', ', $qualifiedCommandNames);
 
             throw new AmbiguousCommandException(s(
                 'Please be more precise with the command name. ' .
