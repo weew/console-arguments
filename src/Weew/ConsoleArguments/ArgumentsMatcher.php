@@ -168,8 +168,8 @@ class ArgumentsMatcher implements IArgumentsMatcher {
      * @return bool
      */
     public function compareCommandName($commandName, $search) {
-        $commandName = explode(':', $commandName);
-        $search = explode(':', $search);
+        $commandName = preg_split('/(:|-|_)/', $commandName);
+        $search = preg_split('/(:|-|_)/', $search);
 
         foreach ($search as $index => $searchPart) {
             $stringPart = array_get($commandName, $index);
