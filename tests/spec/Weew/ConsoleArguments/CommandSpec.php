@@ -169,6 +169,16 @@ class CommandSpec extends ObjectBehavior {
         $this->setHandler('handler')->shouldBe($this);
     }
 
+    function it_takes_and_returns_parallel() {
+        $this->isParallel()->shouldBe(true);
+        $this->setParallel(false);
+        $this->isParallel()->shouldBe(false);
+    }
+
+    function it_is_chainable_trough_set_parallel() {
+        $this->setParallel(false)->shouldBe($this);
+    }
+
     function it_takes_and_returns_hidden() {
         $this->isHidden()->shouldBe(false);
         $this->setHidden(true);

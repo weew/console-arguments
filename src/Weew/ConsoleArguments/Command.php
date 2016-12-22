@@ -29,6 +29,11 @@ class Command implements ICommand {
     /**
      * @var bool
      */
+    protected $parallel = true;
+
+    /**
+     * @var bool
+     */
     protected $global = false;
 
     /**
@@ -107,6 +112,24 @@ class Command implements ICommand {
      */
     public function setHelp($help) {
         $this->help = $help;
+
+        return $this;
+    }
+
+    /**
+     * @return bool
+     */
+    public function isParallel() {
+        return $this->parallel;
+    }
+
+    /**
+     * @param bool $parallel
+     *
+     * @return ICommand
+     */
+    public function setParallel($parallel) {
+        $this->parallel = $parallel;
 
         return $this;
     }

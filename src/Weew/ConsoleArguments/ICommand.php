@@ -42,6 +42,18 @@ interface ICommand {
     /**
      * @return bool
      */
+    function isParallel();
+
+    /**
+     * @param bool $parallel
+     *
+     * @return ICommand
+     */
+    function setParallel($parallel);
+
+    /**
+     * @return bool
+     */
     function isHidden();
 
     /**
